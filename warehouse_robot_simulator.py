@@ -15,7 +15,6 @@ def display_header(moves, attempts):
     print("Objective: Move the robot (R) to the goal (G) while avoiding obstacles (█).")
     print("                              ")
 
-
     print(f"moves: {moves}")
     print(f"attempts: {attempts}")
     print("")
