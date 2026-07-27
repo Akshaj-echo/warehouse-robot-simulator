@@ -30,7 +30,7 @@ display_header(moves=0, attempts=0)
 
 moves = 0
 
-NO_OF_OBSTACLES = 20
+NO_OF_OBSTACLES = 100
 width = 35
 height = 15
 

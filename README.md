@@ -97,3 +97,19 @@ This project strengthened my understanding of:
 V.Akshaj Ramcharan
 
 This repository documents my journey from a manually controlled warehouse simulator to an autonomous warehouse navigation system.
+
+
+
+
+
+
+
+## Screenshots
+
+### Game Start
+
+![Game Start](images/game.start.png)
+
+### Gameplay
+
+![Gameplay](images/middle.game.png)
