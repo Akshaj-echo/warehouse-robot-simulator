@@ -94,7 +94,7 @@ This project strengthened my understanding of:
 
 ## Author
 
-V.Akshaj Ramcharan
+V.Akshaj Ram charan
 
 This repository documents my journey from a manually controlled warehouse simulator to an autonomous warehouse navigation system.
 
