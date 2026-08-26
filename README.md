@@ -1,138 +1,405 @@
 # Warehouse Robot Simulator
 
-A Python terminal-based warehouse navigation simulator built as the first milestone of a larger warehouse robotics project.
+A Python-based terminal warehouse navigation simulator developed as the software foundation for a larger **warehouse robotics project**.
 
-The project is being developed incrementally, starting with a simple manually controlled warehouse and gradually moving toward autonomous warehouse navigation and eventually a physical warehouse robot.
+The project evolves from basic grid-based robot movement into **dynamic warehouse generation, weighted terrain, autonomous path planning, algorithm comparison, and manual robot control**.
+
+The long-term objective is to progress from a software simulation to a **physical autonomous warehouse robot**.
 
 ---
 
-## V1 — Foundation
+## Project Evolution
 
-The first version established the core warehouse simulation.
+```text
+V1
+Basic Warehouse Simulator
+        ↓
+V2
+Dynamic Warehouse + OOP
+        ↓
+V3
+Path Planning + Autonomous Navigation
+        ↓
+V4
+Advanced Simulation
+        ↓
+V5
+Robotics / Physical Robot Preparation
+        ↓
+ESP32 Physical Robot
+        ↓
+Real-World Warehouse Navigation
+```
 
-### Features
+---
 
-* Fixed **35 × 15** warehouse
-* Robot (`R`) with manual movement
-* Randomly generated goal (`G`)
-* Warehouse boundary walls
-* Random obstacle generation
-* Collision detection
+# V3 — Autonomous Warehouse Navigation
+
+V3 is the major path-planning milestone of the project.
+
+The simulator now supports **three different path-planning algorithms**, weighted terrain, irregular warehouse shapes, autonomous navigation, algorithm comparison, and manual robot control.
+
+Instead of simply moving a robot around a fixed grid, V3 allows the robot to **calculate and follow a route through a dynamically generated warehouse**.
+
+---
+
+## V3 Features
+
+### Dynamic Warehouse Generation
+
+Every game generates a new warehouse.
+
+* Random warehouse width: **40–60 cells**
+* Random warehouse height: **25–40 cells**
+* Irregular polygon-based warehouse shapes
+* Automatically generated warehouse boundaries
+* Dynamically generated walkable areas
+* Random robot starting position
+* Automatically selected goal position
+* Random obstacle placement
+* Automatic regeneration until a solvable map is produced
+
+The warehouse is no longer restricted to a simple rectangular layout.
+
+---
+
+## Difficulty System
+
+Three difficulty levels control obstacle density:
+
+| Difficulty | Obstacle Density |
+| ---------- | ---------------: |
+| Easy       |              10% |
+| Medium     |              20% |
+| Hard       |              30% |
+
+The simulator checks whether the generated warehouse is navigable before allowing the game to proceed.
+
+---
+
+# Terrain System
+
+V3 introduces **weighted terrain**.
+
+Different floor cells have different movement costs:
+
+| Terrain    | Symbol | Cost |
+| ---------- | ------ | ---: |
+| Normal     | `.`    |    1 |
+| Rough      | `~`    |    3 |
+| Very Rough | `^`    |    5 |
+
+Terrain is randomly generated across the warehouse.
+
+This creates an important distinction between:
+
+**shortest path**
+
+and
+
+**lowest-cost path**.
+
+Dijkstra and A* can therefore consider terrain cost when selecting a route.
+
+---
+
+# Path-Planning Algorithms
+
+V3 implements three path-planning algorithms from scratch.
+
+## 1. Breadth-First Search — BFS
+
+BFS explores the warehouse level-by-level using a queue.
+
+It is used for:
+
+* Path finding
+* Solvability checking
+* Shortest path in terms of number of moves
+* Comparing algorithm performance
+
+BFS does not consider terrain costs.
+
+---
+
+## 2. Dijkstra's Algorithm
+
+Dijkstra's algorithm considers the movement cost of each terrain cell.
+
+It searches for the **lowest-cost path**, rather than simply the path containing the fewest moves.
+
+This allows the robot to choose a slightly longer route if that route avoids expensive terrain.
+
+---
+
+## 3. A* Search
+
+A* combines:
+
+* Actual movement cost
+* A heuristic estimating the remaining distance to the goal
+
+The implementation uses Manhattan distance as its heuristic.
+
+A* is designed to reach the goal more efficiently than uninformed search while still considering terrain costs.
+
+---
+
+# Autonomous Mode
+
+In Autonomous Mode:
+
+1. A warehouse is generated.
+2. Obstacles and terrain are generated.
+3. The selected algorithm calculates a route.
+4. The route is displayed on the warehouse.
+5. The robot automatically follows the calculated path.
+6. The simulator displays the robot's movement step-by-step.
+7. The robot reaches the goal automatically.
+
+Supported algorithms:
+
+```text
+BFS
+Dijkstra
+A*
+```
+
+The robot is therefore no longer dependent on manual keyboard input to navigate to the goal.
+
+---
+
+# Manual Mode
+
+V3 also retains manual control.
+
+The robot can be controlled using:
+
+```text
+W / ↑  → Up
+A / ←  → Left
+S / ↓  → Down
+D / →  → Right
+Q      → Quit
+```
+
+Manual mode does **not** use path finding to control the robot.
+
+BFS is only used beforehand to verify that the generated warehouse has a valid route to the goal.
+
+This separates:
+
+* **Human-controlled navigation**
+* **Algorithm-controlled navigation**
+
+which is useful for comparing manual and autonomous robot behaviour.
+
+---
+
+# Algorithm Comparison Mode
+
+V3 includes a dedicated comparison mode.
+
+All three algorithms are executed on the **same warehouse, with the same robot position, goal, obstacles, and terrain**.
+
+The simulator reports:
+
+* Path length
+* Total path cost
+* Cells explored
+
+Example:
+
+```text
+BFS
+Path length: ...
+Total cost: ...
+Cells explored: ...
+
+Dijkstra
+Path length: ...
+Total cost: ...
+Cells explored: ...
+
+A*
+Path length: ...
+Total cost: ...
+Cells explored: ...
+```
+
+The calculated paths are also displayed directly on the warehouse.
+
+Different colours are used to distinguish the algorithms and shared sections of their routes.
+
+---
+
+# Path Visualization
+
+The terminal visualization shows:
+
+```text
+R  → Robot
+G  → Goal
+█  → Boundary / obstacle
+.  → Normal terrain
+~  → Rough terrain
+^  → Very rough terrain
+*  → Calculated path
+```
+
+During autonomous navigation, the robot moves through the calculated path while the terminal updates in real time.
+
+---
+
+# V3 Architecture
+
+The simulator is structured around several major components.
+
+### `Warehouse`
+
+Stores the warehouse environment:
+
+* Width
+* Height
+* Obstacles
+* Goal position
+* Boundary cells
+* Walkable cells
+* Terrain costs
+
+### `Robot`
+
+Stores the robot's position and provides movement operations:
+
+```text
+move_up()
+move_down()
+move_left()
+move_right()
+```
+
+### Path-planning functions
+
+```text
+bfs()
+dijkstra()
+a_star()
+find_path()
+```
+
+### Environment generation
+
+```text
+generate_warehouse_shape()
+generate_terrain()
+generate_obstacles()
+```
+
+### Visualization
+
+```text
+display_warehouse()
+display_header()
+```
+
+This separation makes the simulator easier to extend toward future robotics applications.
+
+---
+
+# V1 — Foundation
+
+V1 established the basic warehouse simulation.
+
+It introduced:
+
+* Fixed 35 × 15 warehouse
+* Robot movement
+* Goal
+* Obstacles
+* Boundary collision
 * Win/Lose conditions
 * Move counter
-* Colored terminal visualization
-* Automatic map regeneration
-* **Breadth-First Search (BFS)** to guarantee that the generated map is solvable
-* Quit option
+* Terminal visualization
+* Basic BFS solvability checking
 
-V1 focused on building the fundamental grid, movement, collision, and path-validity systems.
+V1 was the foundation for everything that followed.
 
 ---
 
-## V2 — Dynamic Warehouse Simulator
+# V2 — Dynamic Warehouse + OOP
 
-V2 builds directly on V1 and introduces a more dynamic and replayable simulation.
+V2 transformed the fixed simulator into a dynamic system.
 
-### Added Features
+It introduced:
 
-* **Random warehouse dimensions**
+* Random warehouse dimensions
+* Random robot starting position
+* Random goal
+* Difficulty levels
+* Random obstacle generation
+* WASD controls
+* Arrow-key controls
+* Replay functionality
+* Improved terminal interface
+* Object-Oriented Programming
+* `Warehouse` and `Robot` classes
+* Solvable-map generation
 
-  * Width: 20–40
-  * Height: 10–20
-* **Random robot starting position**
-* **Random goal position**
-* **Difficulty levels**
-
-  * Easy — 10% obstacle density
-  * Medium — 20% obstacle density
-  * Hard — 30% obstacle density
-* Solvable map generation maintained using BFS
-* **W / A / S / D controls**
-* **Arrow-key controls**
-* Improved game-start information
-
-  * Difficulty
-  * Warehouse dimensions
-  * Map-generation attempts
-  * Controls
-* Move counter
-* Replay / Play Again functionality
-* Clean terminal reset between games
-* Object-Oriented Programming introduced through the `Warehouse` and `Robot` classes
-
-V2 turns the original fixed demonstration into a configurable and replayable warehouse simulator.
+V2 established the architecture that allowed V3 to focus on navigation algorithms.
 
 ---
 
-## Controls
-
-| Key       | Action     |
-| --------- | ---------- |
-| `W` / `↑` | Move Up    |
-| `A` / `←` | Move Left  |
-| `S` / `↓` | Move Down  |
-| `D` / `→` | Move Right |
-| `Q`       | Quit       |
-
----
-
-## Symbols
-
-| Symbol | Meaning                    |
-| ------ | -------------------------- |
-| `R`    | Robot                      |
-| `G`    | Goal                       |
-| `X`    | Robot has reached the goal |
-| `█`    | Warehouse boundary         |
-| `█`    | Obstacle                   |
-| `.`    | Empty space                |
-
-The terminal uses colors to distinguish the robot, goal, boundaries, and obstacles.
-
----
-
-## Algorithms Used
-
-### Breadth-First Search (BFS)
-
-BFS is used to check whether a generated warehouse contains a valid path from the robot to the goal.
-
-If the generated map is unsolvable, the simulator discards it and generates another map until a valid route is found.
-
-This ensures that every generated game is winnable.
-
----
-
-## Technologies
+# Technologies
 
 * **Python**
-* `random` — random warehouse, robot, goal, and obstacle generation
-* `os` — terminal clearing
-* `msvcrt` — keyboard input and arrow-key controls
-* ANSI escape codes — terminal colors
-* **Object-Oriented Programming (OOP)**
-* **Breadth-First Search (BFS)**
+* Object-Oriented Programming
+* `random`
+* `math`
+* `heapq`
+* `collections.deque`
+* `msvcrt`
+* `os`
+* `time`
+* ANSI terminal escape codes
+
+### Algorithms
+
+* Breadth-First Search
+* Dijkstra's Algorithm
+* A* Search
+* Polygon-based point-in-polygon testing
+* Weighted path-cost calculation
 
 ---
 
-## How to Run
+# How to Run
 
-Clone the repository or download the project files.
+Clone the repository or download the project.
 
-Open a terminal in the project directory and run:
+Open a terminal inside the project directory and run:
 
 ```bash
 python warehouse_robot_simulator.py
 ```
 
-The simulator will generate a warehouse and ask you to select a difficulty.
+The simulator will generate a warehouse and guide you through:
+
+```text
+Difficulty
+    ↓
+Mode
+    ↓
+Algorithm (Autonomous Mode)
+    ↓
+Warehouse Navigation
+```
 
 ---
 
-## Project Structure
+# Project Structure
 
 ```text
-warehouse2D_game1/
+warehouse-robot-simulator/
 │
 ├── warehouse_robot_simulator.py
 ├── README.md
@@ -147,77 +414,95 @@ warehouse2D_game1/
 
 ---
 
-## Learning Outcomes
+# Learning Outcomes
 
-This project developed practical understanding of:
+Through V1–V3, the project developed practical experience with:
 
-* Python fundamentals
+* Python programming
 * Functions
 * Classes and objects
 * Object-Oriented Programming
-* Lists, tuples, and sets
+* Lists, tuples, sets and dictionaries
 * Coordinate systems
-* Grid-based movement
+* Grid-based environments
 * Collision detection
-* Random generation
+* Randomized environment generation
+* Procedural geometry
 * Terminal input handling
 * Terminal visualization
-* BFS and queue-based algorithms
-* Path validation
-* Procedural map generation
-* Game-state management
+* Queue-based search
+* Priority queues
+* Graph traversal
+* Shortest-path algorithms
+* Weighted path planning
+* Heuristics
+* Path reconstruction
+* Algorithm comparison
+* Simulation state management
 
 ---
 
-## Project Direction
+# Project Direction
 
-This simulator is the first stage of a larger warehouse robotics project.
+The purpose of this project is not to remain a terminal game.
 
-The planned progression is:
+The simulator is being developed as a progression toward robotics:
 
 ```text
-Python Fundamentals
-        ↓
-Warehouse Robot Simulator
-        ↓
-BFS
-        ↓
-Dijkstra
-        ↓
-A*
-        ↓
-Advanced Visualization
-        ↓
-GUI Simulator
-        ↓
-Robot Simulation
-        ↓
-ESP32 Physical Robot
-        ↓
-Real-World Warehouse Navigation
+Python
+   ↓
+Warehouse Simulation
+   ↓
+Path Planning Algorithms
+   ↓
+Autonomous Navigation
+   ↓
+Advanced Robot Simulation
+   ↓
+Robotics Concepts
+   ↓
+ESP32
+   ↓
+Physical Robot
+   ↓
+Sensors
+   ↓
+Real-World Path Planning
+   ↓
+Warehouse Navigation
 ```
 
-The long-term objective is to progress from a manually controlled grid simulator to an autonomous robot capable of performing path planning and navigation in a warehouse environment.
+The eventual objective is a physical robot capable of receiving a destination, planning a route, navigating through an environment, avoiding obstacles, and operating autonomously.
 
 ---
 
-## Project Evolution
+# Current Milestone
 
-### V1
+## V3 — COMPLETE
 
-A fixed warehouse demonstrating the fundamentals of grid-based robot navigation.
+V3 currently includes:
 
-### V2
+* Dynamic irregular warehouses
+* Random obstacles
+* Difficulty levels
+* Weighted terrain
+* Manual control
+* Autonomous navigation
+* BFS
+* Dijkstra
+* A*
+* Algorithm comparison
+* Path visualization
+* Path-cost calculation
+* Cells-explored measurement
+* Solvable-map generation
+* Real-time autonomous movement
 
-A dynamic warehouse with random dimensions, random starting conditions, difficulty levels, multiple control methods, OOP, solvable-map generation, and replayability.
-
-### Future Versions
-
-The focus will shift from manually controlling the robot toward **algorithmic path planning and autonomous navigation**.
+The V3 implementation has been debugged and integrated into the repository's `main` branch.
 
 ---
 
-## Author
+# Author
 
 **V. Akshaj Ram Charan**
 
