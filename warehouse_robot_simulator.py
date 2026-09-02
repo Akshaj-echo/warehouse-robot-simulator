@@ -525,7 +525,8 @@ def display_warehouse(
         bfs_path=None,
         dijkstra_path=None,
         astar_path=None,
-        path=None
+        path=None,
+        mode=None
 ):
     bfs_path = set(bfs_path or [])
     dijkstra_path = set(dijkstra_path or [])
@@ -661,23 +662,20 @@ def display_warehouse(
                 )
 
             else:
+                    if mode == "Manual":
+                        print(".", end="")
+                    else:
+                        terrain_cost = warehouse.terrain_costs.get(
+                            position,
+                            1
+                        )
 
-                terrain_cost = warehouse.terrain_costs.get(
-                    position,
-                    1
-                )
-
-                if terrain_cost == 1:
-
-                    print(".", end="")
-
-                elif terrain_cost == 3:
-
-                    print("~", end="")
-
-                elif terrain_cost == 5:
-
-                    print("^", end="")
+                        if terrain_cost == 1:
+                            print(".", end="")
+                        elif terrain_cost == 3:
+                            print("~", end="")
+                        elif terrain_cost == 5:
+                            print("^", end="")
 
         print()
 
@@ -1070,7 +1068,8 @@ def play_game():
                 robot,
                 bfs_path=bfs_path,
                 dijkstra_path=dijkstra_path,
-                astar_path=astar_path
+                astar_path=astar_path,
+                mode=mode
             )
 
             # ====================================================
@@ -1255,12 +1254,15 @@ def play_game():
 
     print()
 
+    os.system("cls" if os.name == "nt" else "clear")
+
     if mode == "Manual":
 
         display_warehouse(
             warehouse,
             warehouse.obstacles,
-            robot
+            robot,
+            mode=mode
         )
 
     else:
@@ -1269,7 +1271,8 @@ def play_game():
             warehouse,
             warehouse.obstacles,
             robot,
-            path)
+            path,
+            mode=mode)
 
 # ============================================================
 # Autonomous mode
@@ -1302,7 +1305,8 @@ def play_game():
                 warehouse,
                 warehouse.obstacles,
                 robot,
-                path=path
+                path=path,
+                mode=mode
             )
 
             time.sleep(0.1)
@@ -1451,6 +1455,7 @@ def play_game():
                 warehouse,
                 warehouse.obstacles,
                 robot,
+                mode=mode
                 
             )
 
